@@ -58,6 +58,17 @@ class Git_Daily
 
     public static function getSubCommandList()
     {
+        if ($path = Phar::running()) {
+            $phar = new Phar($path, 0);
+            $command_list = array();
+            foreach (new RecursiveIteratorIterator($phar) as $file) {
+                if (preg_match(sprintf('@^%s/Git/Daily/Command/(\w+)\.php$@', $path), $file->getPathName(), $m)) {
+                    $command_list[] = strtolower($m[1]);
+                }
+            }
+            return $command_list;
+        }
+
         $file_list = dirname(__FILE__) . '/Daily/Command/*.php';
 
         $command_list = array();
