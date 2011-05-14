@@ -1,0 +1,44 @@
+#!/usr/bin/php -d phar.readonly=0
+<?php
+if (ini_get('phar.readonly')) {
+    echo <<<'E'
+git-daily: Fatal: please disable phar.readonly on your php.ini.
+E;
+    exit;
+}
+if (file_exists(dirname(__FILE__) . '/bin/git-daily.phar')) { unlink(dirname(__FILE__) . '/bin/git-daily.phar'); }
+
+$phar = new Phar(dirname(__FILE__) . '/bin/git-daily.phar', 0, 'git-daily');
+$phar->setSignatureAlgorithm(Phar::SHA1);
+$phar->startBuffering();
+$phar->buildFromDirectory(dirname(__FILE__) . '/src', '/.php$/');
+$phar->stopBuffering();
+$phar['_cli_stub.php'] = <<<'EOF'
+<?php
+if ( ! ini_get('register_argc_argv'))
+{
+    echo <<<'E'
+git-daily: Fatal: please enable register_argv_argc on your php.ini.
+E;
+    exit;
+}
+ini_set('max_execution_time', 0);
+ini_set('memory_limit', -1);
+
+require_once 'Git/Daily.php';
+
+if ('cli' === php_sapi_name())
+{
+    try
+    {
+        Git_Daily::run($argc, $argv);
+    }
+    catch (Exception $e)
+    {
+        exit(255);
+    }
+}
+
+__halt_compiler();
+EOF;
+$phar->setDefaultStub('_cli_stub.php');

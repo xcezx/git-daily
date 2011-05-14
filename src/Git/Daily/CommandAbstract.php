@@ -53,7 +53,7 @@ abstract class Git_Daily_CommandAbstract
     public static function outLn()
     {
         $args = func_get_args();
-        call_user_func_array(array('self', 'out'), $args);
+        call_user_func_array(array('self', 'out'), (array)$args);
         self::out(PHP_EOL);
     }
 
