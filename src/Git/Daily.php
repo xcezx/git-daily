@@ -112,7 +112,7 @@ class Git_Daily
         try {
             $result = Git_Daily_CommandAbstract::runSubCommand($subcommand, $argv);
             if ($result !== null) {
-                call_user_func_array('Git_Daily_CommandAbstract::outLn', $result);
+              call_user_func_array('Git_Daily_CommandAbstract::outLn', (array)$result);
             }
         } catch (Git_Daily_Exception $e) {
             if (!$e->isShowUsage()) {
